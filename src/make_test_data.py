@@ -1,12 +1,13 @@
 import json
 import os
 import random
+import shutil
 import sys
 
 # Set seed for reproducibility
 random.seed(414)
 
-def make_test_data(data_dir, rm):
+def make_test_data(data_dir, mv):
     all_files = os.listdir(data_dir)
     test_data_name = 'mpd.slice.{x}00000-{x}00999.json'
     test_files = [test_data_name.format(x=i) for i in range(1, 10)]
@@ -25,11 +26,11 @@ def make_test_data(data_dir, rm):
     os.makedirs('test_data', exist_ok=True)
     with open(os.path.join('test_data', 'mpd.test.json'), "w+") as fh:
         json.dump(test_json, fh, indent=4)
-    if rm:
+    if mv:
         for f in test_files:
-            os.remove(f)
+            shutil.move(os.path.join(data_dir, f), os.path.join('test_data', f))
 
-def make_validation_data(data_dir, rm):
+def make_validation_data(data_dir, mv):
     all_files = os.listdir(data_dir)
     validation_data_prefix = 'mpd.slice.9'
     test_files = [test_data_name.format(x=i) for i in range(1, 10)]
@@ -48,7 +49,7 @@ def make_validation_data(data_dir, rm):
     os.makedirs('test_data', exist_ok=True)
     with open(os.path.join('test_data', 'mpd.test.json'), "w+") as fh:
         json.dump(test_json, fh, indent=4)
-    if rm:
+    if mv:
         for f in test_files:
             os.remove(f)
 
@@ -56,13 +57,13 @@ def make_validation_data(data_dir, rm):
 if __name__ == "__main__":
     data_dir = sys.argv[1]
     mode = sys.argv[2]
-    rm = False
-    if len(sys.argv) > 3 and sys.argv[3] == "--rm":
-        rm = True
+    mv = False
+    if len(sys.argv) > 3 and sys.argv[3] == "--mv":
+        mv = True
     if mode == "test":
-        make_test_data(data_dir, rm)
+        make_test_data(data_dir, mv)
     elif mode == "validation":
-        make_validation_data(data_dir, rm)
+        make_validation_data(data_dir, mv)
     else:
         raise ValueError(f"Invalid value provided for mode: {mode}")
 
