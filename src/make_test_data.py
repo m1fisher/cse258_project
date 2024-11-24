@@ -22,7 +22,8 @@ def main(data_dir, rm):
     # note that this does not actually shuffle the order
     # of each playlist's tracks, which is important to preserve.
     random.shuffle(test_json['playlists'])
-    with open(os.path.join(data_dir, 'mpd.test.json'), "w+") as fh:
+    os.makedirs('test_data', exist_ok=True)
+    with open(os.path.join('test_data', 'mpd.test.json'), "w+") as fh:
         json.dump(test_json, fh, indent=4)
     if rm:
         for f in test_files:
