@@ -7,6 +7,7 @@ Actually downloaded dataset [here](https://www.kaggle.com/datasets/himanshuwagh/
 Useful papers:
 
     * An Analysis of Approaches Taken in the ACM RecSys Challenge 2018 for Automatic Music Playlist Continuation (in repo)
+    * http://www.cs.utoronto.ca/~mvolkovs/recsys2018_challenge.pdf
 
 
 ## Evaluation
