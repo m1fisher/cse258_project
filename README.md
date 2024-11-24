@@ -9,6 +9,20 @@ Useful papers:
     * An Analysis of Approaches Taken in the ACM RecSys Challenge 2018 for Automatic Music Playlist Continuation (in repo)
     * http://www.cs.utoronto.ca/~mvolkovs/recsys2018_challenge.pdf
 
+## Cookbook
+
+```
+# First, unzip the archive such that the data is available in subdirectory `data/`
+# Create test data and move it out of the data/ dir
+python3 src/make_test_data.py data test --mv
+# Split the test data into different evaluation categories used in the Spotify challenge
+python3 src/split_test_data.py test_data/mpd.test.json
+# Create validation data and move it out of the data/ dir
+python3 src/make_test_data.py data validation --mv
+# Split the validation data into different evaluation categories used in the Spotify challenge
+python3 src/split_test_data.py validation_data/mpd.validation.json
+# What remains in the `data/` subdir may now be used as training data
+```
 
 ## Evaluation
 
