@@ -61,3 +61,46 @@ If the metric does not exist (i.e. if there are no relevant tracks in \(R\), a v
 Rank Aggregation
 
 Final rankings will be computed by using the Borda Count election strategy. For each of the rankings of p participants according to R-precision, NDCG, and Recommended Songs Clicks, the top ranked system receives p points, the second system received p-1 points, and so on. The participant with the most total points wins. In the case of ties, we use top-down comparison: compare the number of 1st place positions between the systems, then 2nd place positions, and so on.
+
+Tasks
+
+1.
+2.
+3.
+4. Describe literature related to the problem you are studying. If you are using an existing dataset,
+   where did it come from and how was it used? What other similar datasets have been studied in
+   the past and how? What are the state-of-the-art methods currently employed to study this type
+   of data? Are the conclusions from existing work similar to or different from your own findings?
+
+The problem we are studying is about recommending the next song in an Automatic Playlist Continuation (APC) task. We are using an existing dataset provided by Spotify, one million user generated playlists.
+
+It was generated for the ACM RecSys challenge 2018 for Automatic Music Playlist Continuation.
+
+Describe literature related to the problem you are studying.
+
+What other similar datasets have been studied in
+the past and how?
+
+What are the state-of-the-art methods currently employed to study this type
+of data?
+
+From 'Analysis of Approaches Taken in the ACM RecSys
+Challenge 2018 for Automatic Music Playlist Continuation'
+
+1. Using Matrix factorization methods to identify low dimensional latent representations of playlists and songs. Techniques used are Weighted Regularized Matrix Factorization (WRMF), LightFM, Weighted approximate rank pairwise (WARP) loss and Bayesian personalized ranking (BPR).
+2. Collaborative Autoencoder / CNN ensemble. Song list, artist list, playlist title.
+3. neighborhood-based
+   collaborative filtering methods.
+4. word2vec
+
+Order, context and popularity bias in next-song recommendations
+https://link.springer.com/article/10.1007/s13735-019-00169-8
+
+1. Latent Markov Embedding
+2. RNN
+
+Are the conclusions from existing work similar to or different from your own findings?
+
+--update with our findings
+
+5.
