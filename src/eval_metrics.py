@@ -30,6 +30,6 @@ def clicks(preds: list[dict], ground_truth: list[dict]):
             good_idx = i
             break
     # Note (mfisher): I've ommitted a -1 from good_idx here
-    # compared to the Spotify paper; I think there's is 1-indexed.
+    # compared to the Spotify paper; I think theirs is 1-indexed.
     # The idea is that, if good_idx is in top 10, clicks value should be 0.
     return good_idx // 10

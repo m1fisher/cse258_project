@@ -55,12 +55,23 @@ def read_popular_ids():
         popular_ids = [int(line.strip()) for line in file]
     return popular_ids
 
-def model(playlists):
+@lru_cache
+def _predict():
     popular_ids = read_popular_ids()
-    tracks = [Track(pid=None, pos=None, track_id=id_, artist_id=None, album_id=None) for id_ in popular_ids]
-    return {pid: tracks for pid in playlists}
+    track_to_artist = {}
+    with open("train_data/track_to_artist_ids.csv") as fh:
+        reader = csv.reader(fh)
+        next(reader)
+        for row in reader:
+            track_to_artist[int(row[0])] = int(row[1])
+    tracks = [
+        Track(pid=None, pos=None, track_id=id_, artist_id=track_to_artist.get(id_), album_id=None)
+        for id_ in popular_ids
+    ]
+    return tracks
 
-
+def model(playlists):
+    return {pid: _predict() for pid in playlists}
 
 
 

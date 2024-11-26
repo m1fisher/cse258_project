@@ -13,6 +13,7 @@ def main(data_dir, out_dir):
     curr_album_id = 0
     playlist_names = {}
     batch_number = 0
+    track_id_to_artist_id = {}
     os.makedirs(out_dir, exist_ok=True)
     for slice_file in all_slices:
         batch_number += 1
@@ -46,6 +47,7 @@ def main(data_dir, out_dir):
                     album_ids[album_name] = curr_album_id
                     album_id = album_ids[album_name]
                     curr_album_id += 1
+                track_id_to_artist_id[track_id] = artist_id
                 pos = track["pos"]
                 curr_playlist.append((pid, pos, track_id, artist_id, album_id))
             processed_playlists.extend(curr_playlist)
@@ -61,6 +63,12 @@ def main(data_dir, out_dir):
     write_ids(album_ids, "album", out_dir)
     write_ids(artist_ids, "artist", out_dir)
     write_ids({v: k for k, v in playlist_names.items()}, "playlist", out_dir)
+    track_to_artist_tuples =  [(k, v) for k, v in track_id_to_artist_id.items()]
+    with open(os.path.join(out_dir, f"track_to_artist_ids.csv"), 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow([f'track_id', f'artist_id'])
+        writer.writerows(track_to_artist_tuples)
+
 
 def write_ids(container, name, out_dir):
     container_tuples =  [(k, v) for k, v in container.items()]
