@@ -29,6 +29,12 @@ def calc_popularities(train_data_dir):
     print(f"All popularities saved to {file_path}")
 
 
+def model():
+    """
+    Predict the 500 most popular tracks
+    """
+    return
+
 
 
 

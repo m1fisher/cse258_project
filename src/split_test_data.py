@@ -101,13 +101,21 @@ def main(data_file):
         output_data_dir,
     )
 
+    fake_pids = set()
+
     first_ten = next(playlists)
     assert all(len(x) > 10 for x in first_ten)
+    for p in first_ten:
+        # Scrub the playlist ID
+        fake_pid = random.randint(-1e7, -1)
+        while fake_pid in fake_pids:
+            fake_pid = random.randint(-1e7, -1)
+        for x in p:
+            x.pid = fake_pid
+            assert x.pid not in fake_pids
+        fake_pids.add(x.pid)
     test = flatten([x[:10] for x in first_ten])
     ground_truth = flatten([x[10:] for x in first_ten])
-    for x in test:
-        # Scrub the playlist ID
-        x.pid = None
     _make_data_slice(
         ground_truth,
         test,
@@ -128,11 +136,17 @@ def main(data_file):
 
     first_5 = next(playlists)
     assert all(len(x) > 5 for x in first_5)
+    for p in first_5:
+        # Scrub the playlist ID
+        fake_pid = random.randint(-1e7, -1)
+        while fake_pid in fake_pids:
+            fake_pid = random.randint(-1e7, -1)
+        for x in p:
+            x.pid = fake_pid
+            assert x.pid not in fake_pids
+        fake_pids.add(x.pid)
     test = flatten([x[:5] for x in first_5])
     ground_truth = flatten([x[5:] for x in first_5])
-    for x in test:
-        # Scrub the playlist ID
-        x.pid = None
     _make_data_slice(
         ground_truth,
         test,
