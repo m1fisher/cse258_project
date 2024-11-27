@@ -13,7 +13,7 @@ from utils import read_track_csv
 from popularity_baseline import model
 from sparse_repr import inner_product_predict as predict
 #from voyager_model import predict as model
-#from wrf_model import predict
+from wrf_model import predict
 
 random.seed(414)
 

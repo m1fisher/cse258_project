@@ -18,7 +18,7 @@ def run_svd():
     # |num songs| x |num playlists|. We are going to
     # project songs down into a low-dim subspace.
     matrix = matrix.T
-    n_dimensions = 10
+    n_dimensions = 100
     svd = TruncatedSVD(n_components=n_dimensions)
     model = svd.fit(matrix)
     with open("train_data/svd.pkl", "wb") as fh:
@@ -63,16 +63,16 @@ def predict(playlists):
         track_ids = [t.track_id for t in seed_tracks]
         # try getting the 500 nearest neighbors of the first song in playlist, as a test
         #track_id_to_name = utils.get_track_id_to_name_map("train_data/track_ids.csv")
-        recommendations = []
-        for tid in track_ids:
-            song = X[tid]
-            distances = np.linalg.norm(X - song, axis=1)
-            recommendations.extend(np.argsort(distances)[:50])
-            print(len(recommendations))
-        preds[pid] = [utils.Track(pid=pid, pos=None, track_id=int(x),
-                                  artist_id=track_to_artist[int(x)], album_id=None)
-                      for x in recommendations]
-        continue
+#        recommendations = []
+#        for tid in track_ids:
+#            song = X[tid]
+#            distances = np.linalg.norm(X - song, axis=1)
+#            recommendations.extend(np.argsort(distances)[:50])
+#            print(len(recommendations))
+#        preds[pid] = [utils.Track(pid=pid, pos=None, track_id=int(x),
+#                                  artist_id=track_to_artist[int(x)], album_id=None)
+#                      for x in recommendations]
+#        continue
         ### ORIGINAL ATTEMPT ###
         # First, project the new playlist into the low-dimensional song space
         # We take the average song repr of the playlist
@@ -82,7 +82,7 @@ def predict(playlists):
         proj = projected_vector / np.linalg.norm(projected_vector)
         # Now, get the nearest neighbors of the playlist repr
         distances = np.linalg.norm(X - proj, axis=1)
-        recommendations = np.argsort(distances)[:500]
+        recommendations = np.argsort(distances)[:5000]
         preds[pid] = [utils.Track(pid=pid, pos=None, track_id=int(x),
                                   artist_id=track_to_artist[int(x)], album_id=None)
                       for x in recommendations]
