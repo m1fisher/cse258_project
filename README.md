@@ -4,10 +4,12 @@ Original challenge description [here](https://www.aicrowd.com/challenges/spotify
 
 Actually downloaded dataset [here](https://www.kaggle.com/datasets/himanshuwagh/spotify-million)
 
-Useful papers:
+Useful references:
 
     * An Analysis of Approaches Taken in the ACM RecSys Challenge 2018 for Automatic Music Playlist Continuation (in repo)
     * http://www.cs.utoronto.ca/~mvolkovs/recsys2018_challenge.pdf
+    * Try this model: https://spotify.github.io/voyager/python/reference.html 
+    * Try this model: https://www.cs.cornell.edu/~tj/publications/chen_etal_12a.pdf
 
 ## Cookbook
 

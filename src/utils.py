@@ -1,5 +1,6 @@
 import csv
 from dataclasses import dataclass
+from functools import lru_cache
 
 @dataclass
 class Track:
@@ -25,3 +26,10 @@ def read_track_csv(file_path: str):
         tracks = [Track(int(x[0]), int(x[1]), int(x[2]), int(x[3]), int(x[4])) for x in reader]
     return tracks
 
+@lru_cache
+def get_track_to_artist_map(file_path: str):
+    with open(file_path) as file:
+        reader = csv.reader(file)
+        next(reader)
+        track_to_artist = {int(row[0]): int(row[1]) for row in reader}
+    return track_to_artist

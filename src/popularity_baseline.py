@@ -7,7 +7,6 @@ import sys
 
 from utils import Track, read_track_csv
 
-# TODO (mfisher): Include artists in popularity list
 
 def calc_popularities(train_data_dir):
     all_slices = os.listdir(train_data_dir)
