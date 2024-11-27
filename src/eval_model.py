@@ -10,8 +10,8 @@ import eval_metrics
 from utils import read_track_csv
 
 ### Import your model here as model ###
-from popularity_baseline import model
-from sparse_repr import inner_product_predict as predict
+from popularity_baseline import model as predict
+#from sparse_repr import inner_product_predict as predict
 #from voyager_model import predict as model
 from wrf_model import predict
 
@@ -30,7 +30,7 @@ def evaluate(predict_func, quick_mode=False):
     for track in ground_truth:
         ground_truth_per_playlist[track.pid].append(track)
     if quick_mode == True:
-        n = 3
+        n = 10
         rand_idxs = set(random.sample(range(len(eval_per_playlist)), n))
         print(rand_idxs)
         eval_per_playlist = {k: v for i, (k,v) in enumerate(list(eval_per_playlist.items())) if i in rand_idxs}
