@@ -61,6 +61,19 @@ def predict(playlists):
     preds = {}
     for pid, seed_tracks in playlists.items():
         track_ids = [t.track_id for t in seed_tracks]
+        # try getting the 500 nearest neighbors of the first song in playlist, as a test
+        #track_id_to_name = utils.get_track_id_to_name_map("train_data/track_ids.csv")
+        recommendations = []
+        for tid in track_ids:
+            song = X[tid]
+            distances = np.linalg.norm(X - song, axis=1)
+            recommendations.extend(np.argsort(distances)[:50])
+            print(len(recommendations))
+        preds[pid] = [utils.Track(pid=pid, pos=None, track_id=int(x),
+                                  artist_id=track_to_artist[int(x)], album_id=None)
+                      for x in recommendations]
+        continue
+        ### ORIGINAL ATTEMPT ###
         # First, project the new playlist into the low-dimensional song space
         # We take the average song repr of the playlist
         vector = coo_matrix(([1] * len(track_ids), ([0] * len(track_ids), track_ids)), shape=(1, X.shape[0]))

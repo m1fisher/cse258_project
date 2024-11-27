@@ -33,3 +33,11 @@ def get_track_to_artist_map(file_path: str):
         next(reader)
         track_to_artist = {int(row[0]): int(row[1]) for row in reader}
     return track_to_artist
+
+@lru_cache
+def get_track_id_to_name_map(file_path: str):
+    with open(file_path) as file:
+        reader = csv.reader(file)
+        next(reader)
+        track_id_to_name = {int(row[1]): row[0] for row in reader}
+    return track_id_to_name

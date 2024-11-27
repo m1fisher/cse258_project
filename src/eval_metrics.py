@@ -11,6 +11,11 @@ def R_precision(preds: list[dict], ground_truth: list[dict]):
     numerator = len(S_t.intersection(G_t)) + 0.25 * len(S_a.intersection(G_a))
     return numerator / len(G_t)
 
+def recall(preds: list[dict], ground_truth: list[dict]):
+    print(len(preds))
+    G_t = set(x.track_id for x in ground_truth)
+    S_t = set(x.track_id for x in preds)
+    return len(S_t.intersection(G_t)) / len(G_t)
 
 def NDCG(preds: list[dict], ground_truth: list[dict]):
     """

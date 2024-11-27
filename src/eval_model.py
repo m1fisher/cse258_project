@@ -11,9 +11,9 @@ from utils import read_track_csv
 
 ### Import your model here as model ###
 from popularity_baseline import model
-#from sparse_repr import inner_product_predict as model
+from sparse_repr import inner_product_predict as predict
 #from voyager_model import predict as model
-from wrf_model import predict
+#from wrf_model import predict
 
 random.seed(414)
 
@@ -30,18 +30,21 @@ def evaluate(predict_func, quick_mode=False):
     for track in ground_truth:
         ground_truth_per_playlist[track.pid].append(track)
     if quick_mode == True:
-        n = 15
+        n = 3
         rand_idxs = set(random.sample(range(len(eval_per_playlist)), n))
         print(rand_idxs)
         eval_per_playlist = {k: v for i, (k,v) in enumerate(list(eval_per_playlist.items())) if i in rand_idxs}
         ground_truth_per_playlist = {k: v for i, (k,v) in enumerate(list(ground_truth_per_playlist.items())) if i in rand_idxs}
     predictions = predict_func(eval_per_playlist)
 
+    recalls = []
     r_precisions = []
     clicks = []
     for pid in ground_truth_per_playlist:
+        recalls.append(eval_metrics.recall(predictions[pid], ground_truth_per_playlist[pid]))
         r_precisions.append(eval_metrics.R_precision(predictions[pid], ground_truth_per_playlist[pid]))
         clicks.append(eval_metrics.clicks(predictions[pid], ground_truth_per_playlist[pid]))
+    print(f"Average recall: {statistics.mean(recalls)}")
     print(f"Average R-precision: {statistics.mean(r_precisions)}")
     print(f"Average num clicks: {statistics.mean(clicks)}")
 
