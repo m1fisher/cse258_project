@@ -12,6 +12,7 @@ from utils import read_track_csv
 ### Import your model here as model ###
 from popularity_baseline import model
 #from sparse_repr import inner_product_predict as model
+from voyager_model import predict as model
 
 random.seed(414)
 
