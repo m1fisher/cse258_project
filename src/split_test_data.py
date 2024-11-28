@@ -107,9 +107,9 @@ def main(data_file):
     assert all(len(x) > 10 for x in first_ten)
     for p in first_ten:
         # Scrub the playlist ID
-        fake_pid = random.randint(-1e7, -1)
+        fake_pid = random.randint(int(-1e7), -1)
         while fake_pid in fake_pids:
-            fake_pid = random.randint(-1e7, -1)
+            fake_pid = random.randint(int(-1e7), -1)
         for x in p:
             x.pid = fake_pid
             assert x.pid not in fake_pids
@@ -138,9 +138,9 @@ def main(data_file):
     assert all(len(x) > 5 for x in first_5)
     for p in first_5:
         # Scrub the playlist ID
-        fake_pid = random.randint(-1e7, -1)
+        fake_pid = random.randint(int(-1e7), -1)
         while fake_pid in fake_pids:
-            fake_pid = random.randint(-1e7, -1)
+            fake_pid = random.randint(int(-1e7), -1)
         for x in p:
             x.pid = fake_pid
             assert x.pid not in fake_pids
