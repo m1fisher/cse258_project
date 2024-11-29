@@ -1,6 +1,6 @@
 # First, unzip the archive such that the data is available in subdirectory `data/`
 # Process data to smaller CSVs
-#python3 src/process_data.py data processed_data
+python3 src/process_data.py data processed_data
 # Create test data and move it out of the processed_data/ dir
 python3 src/make_test_data.py processed_data test --mv
 # Split the test data into different evaluation categories used in the Spotify challenge

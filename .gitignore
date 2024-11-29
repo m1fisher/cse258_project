@@ -1,1 +1,7 @@
 data
+train_data/
+validation_data/
+test_data/
+processed_data/
+src/__pycache__/
+.DS_Store

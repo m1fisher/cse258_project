@@ -13,6 +13,12 @@ Useful references:
 
 ## Cookbook
 
+Follow steps below or execute cookbook.sh
+```
+chmod +x cookbook.sh
+./cookbook.sh
+```
+
 ```
 # First, unzip the archive such that the data is available in subdirectory `data/`
 # Process data to smaller CSVs
