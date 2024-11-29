@@ -30,7 +30,7 @@ def evaluate(predict_func, quick_mode=False):
     for track in ground_truth:
         ground_truth_per_playlist[track.pid].append(track)
     if quick_mode == True:
-        n = 100
+        n = 500
         rand_idxs = set(random.sample(range(len(eval_per_playlist)), n))
         print(rand_idxs)
         eval_per_playlist = {k: v for i, (k,v) in enumerate(list(eval_per_playlist.items())) if i in rand_idxs}
