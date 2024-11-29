@@ -69,7 +69,7 @@ def _predict():
     ]
     return tracks
 
-def model(playlists):
+def predict(playlists):
     return {pid: _predict() for pid in playlists}
 
 

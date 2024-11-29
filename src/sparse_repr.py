@@ -64,6 +64,7 @@ def inner_product_predict(playlists):
         track_ids = [t.track_id for t in seed_tracks]
         val = 1 / np.sqrt((len(track_ids)))
         vector = coo_matrix(([val] * len(track_ids), ([0] * len(track_ids), track_ids)), shape=(1, sparse_mat.shape[1]))
+        # TODO: Use cosine similarity or otherwise normalize dot product
         product = sparse_mat.dot(vector.transpose()).tocoo()
         row_tuples = [(r, v) for r,v in zip(product.row, product.data)]
         row_tuples.sort(key=lambda x: x[1], reverse=True)
