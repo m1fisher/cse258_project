@@ -171,7 +171,7 @@ def main(data_file):
     title_only = flatten(title_only)
     pid_set = set(x.pid for x in title_only)
     pids = [Track(pid, None, None, None, None) for pid in pid_set]
-    _make_data_slice(pids, title_only, "title_only", output_data_dir)
+    _make_data_slice(title_only, pids, "title_only", output_data_dir)
 
 
 if __name__ == "__main__":

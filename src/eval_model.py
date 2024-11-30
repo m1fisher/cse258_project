@@ -10,8 +10,8 @@ import eval_metrics
 from utils import read_track_csv
 
 ### Import your model here as model ###
-#from popularity_baseline import model as predict
-from sparse_repr import inner_product_predict as predict
+from popularity_baseline import predict
+#from sparse_repr import inner_product_predict as predict
 #from voyager_model import predict as model
 from latent_factor_model import LatentFactors
 
@@ -19,18 +19,18 @@ random.seed(414)
 
 # TODO (mfisher): Generalize this eval pipeline across validation files
 def evaluate(predict_func, quick_mode=False):
-    evaluation_file = "validation_data/title_and_first_100_tracks.csv"
+    evaluation_file = "validation_data/title_and_first_1_tracks.csv"
     eval_playlists = read_track_csv(evaluation_file)
     eval_per_playlist = defaultdict(list)
     for track in eval_playlists:
         eval_per_playlist[track.pid].append(track)
-    ground_truth_file = "validation_data/ground_truth_title_and_first_100_tracks.csv"
+    ground_truth_file = "validation_data/ground_truth_title_and_first_1_tracks.csv"
     ground_truth = read_track_csv(ground_truth_file)
     ground_truth_per_playlist = defaultdict(list)
     for track in ground_truth:
         ground_truth_per_playlist[track.pid].append(track)
     if quick_mode == True:
-        n = 500
+        n = 50
         rand_idxs = set(random.sample(range(len(eval_per_playlist)), n))
         print(rand_idxs)
         eval_per_playlist = {k: v for i, (k,v) in enumerate(list(eval_per_playlist.items())) if i in rand_idxs}
@@ -56,4 +56,5 @@ if __name__ == "__main__":
     quick_mode = False
     if len(sys.argv) > 1 and sys.argv[1] == "--quick":
         quick_mode = True
-    evaluate(LatentFactors().predict, quick_mode)
+    evaluate(predict, quick_mode)
+    #evaluate(LatentFactors().predict, quick_mode)

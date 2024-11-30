@@ -50,7 +50,61 @@ def _load_normalized_sparse_mat(data_dir):
     row_magnitudes[row_magnitudes == 0] = 1  # Prevent division by zero
     normalized_data = matrix.data / row_magnitudes[matrix.row]
     normalized_matrix = coo_matrix((normalized_data, (matrix.row, matrix.col)), shape=matrix.shape)
+    # TODO (mfisher): Inverse scale entries by popularity
     return normalized_matrix
+
+
+class NeighborModels:
+    def __init__(self):
+        self.ns_mat = _load_normalized_sparse_mat("train_data")
+        self.ns_mat_csr = self.ns_mat.tocsr()
+        self.ns_mat_csc = self.ns_mat.tocsc()
+
+    def user_to_user_score(self, i, j: int):
+        """
+        i is a playlist, j is a song.
+        idea c/o http://www.cs.utoronto.ca/~mvolkovs/recsys2018_challenge.pdf
+        """
+        assert len(set(i.row)) == 1
+        # normalize i vector
+        i = i / np.sqrt((i.data ** 2).sum())
+        # Find playlists that include song j (rows with column j non-zero)
+        start, end = self.ns_mat_csc.indptr[j], self.ns_mat_csc.indptr[j + 1]
+        U_j = self.ns_mat_csc.indices[start:end]  # Rows where column j is non-zero
+        # Exclude i itself if it's part of U_j
+        U_j = U_j[U_j != i.row[0]]
+        # c/o gpt4 for optimized code
+        # Compute the total inner product in a vectorized way
+        # Slice all relevant rows at once and perform the dot product
+        relevant_rows = self.ns_mat_csr[U_j]
+        total_inner_product = relevant_rows.dot(i.T).sum()
+
+        return total_inner_product
+
+    def _get_col(self, mat, j: int):
+        mask = (mat.col == j)
+        rows, cols, data = mat.row[mask], mat.col[mask], mat.data[mask]
+        return coo_matrix((data, (rows, [0]*len(data))), shape=(mat.shape[0], 1))
+
+    def item_to_item_score(self, i, j: int):
+        """
+        i is a playlist, j is a song.
+        idea c/o http://www.cs.utoronto.ca/~mvolkovs/recsys2018_challenge.pdf
+        """
+        # normalize i vector
+        i = i / np.sqrt((i.data ** 2).sum())
+        # Find all songs included in playlist i
+        V_j = i.col  # Songs in playlist i (non-zero columns of i)
+        # Exclude song j itself from comparisons
+        V_j = V_j[V_j != j]
+        # c/o gpt4 for optimized csc code
+        # Get the column vector for song j
+        j_col = self.ns_mat_csc[:, j]
+        # Get all relevant columns (songs in V_j)
+        relevant_cols = self.ns_mat_csc[:, V_j]
+        # Compute dot products in bulk
+        total_inner_product = relevant_cols.T.dot(j_col).sum()
+        return total_inner_product
 
 
 def inner_product_predict(playlists):
@@ -64,7 +118,6 @@ def inner_product_predict(playlists):
         track_ids = [t.track_id for t in seed_tracks]
         val = 1 / np.sqrt((len(track_ids)))
         vector = coo_matrix(([val] * len(track_ids), ([0] * len(track_ids), track_ids)), shape=(1, sparse_mat.shape[1]))
-        # TODO: Use cosine similarity or otherwise normalize dot product
         product = sparse_mat.dot(vector.transpose()).tocoo()
         row_tuples = [(r, v) for r,v in zip(product.row, product.data)]
         row_tuples.sort(key=lambda x: x[1], reverse=True)
@@ -89,4 +142,9 @@ def inner_product_predict(playlists):
 
 if __name__ == "__main__":
     data_dir = sys.argv[1]
-    create_sparse_mat(data_dir)
+    #create_sparse_mat(data_dir)
+    nm = NeighborModels()
+    test_plist = nm.ns_mat_csr[0].tocoo()
+    for j in range(10000):
+        nm.item_to_item_score(test_plist, j)
+        nm.user_to_user_score(test_plist, j)
