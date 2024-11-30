@@ -46,6 +46,7 @@ def _load_model(playlist_rows=True):
 class LatentFactors:
     def __init__(self):
         self.model_playlist = _load_model()
+        self.num_candidates = 1000
 
     def get_playlist_similarity_candidates(self, playlists):
         """ """
@@ -54,6 +55,7 @@ class LatentFactors:
         )
         model = self.model_playlist
         preds = {}
+        pred_scores = {}
         i = 0
         for pid, seed_tracks in playlists.items():
             i += 1
@@ -68,22 +70,28 @@ class LatentFactors:
             item_factors = model.item_factors[track_ids]
             scores = item_factors @ model.item_factors.T
             ranked_items = scores.mean(axis=0).argsort()[::-1]
-            recommendations = ranked_items[:5000]
+            recommendations = ranked_items[:self.num_candidates]
             preds[pid] = [
                 utils.Track(
                     pid=pid,
-                    pos=None,
+                    pos=i,
                     track_id=int(x),
                     artist_id=track_to_artist[int(x)],
                     album_id=None,
                 )
-                for x in recommendations
+                for i, x in enumerate(recommendations)
             ]
-        return preds
+            score_means = scores.mean(axis=0)
+            score_means.sort()
+            pred_scores[pid] = score_means[::-1][:self.num_candidates]
+        return preds, pred_scores
 
     def predict(self, playlists):
-        plist_recs = self.get_playlist_similarity_candidates(playlists)
+        plist_recs, _ = self.get_playlist_similarity_candidates(playlists)
         return {pid: plist_recs[pid] for pid in playlists}
+
+    def predict_with_scores(self, playlists):
+        return self.get_playlist_similarity_candidates(playlists)
 
 
 if __name__ == "__main__":
