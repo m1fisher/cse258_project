@@ -2,14 +2,15 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from xgboost import XGBClassifier
 from sklearn.metrics import roc_auc_score
+from eval_metrics import NDCG
 
 class SongRecommenderXGB:
     def __init__(self, params=None):
         """Initialize the XGBoost model with optional hyperparameters."""
         self.params = params if params else {
-            'n_estimators': 100,
+            'n_estimators': 150,
             'learning_rate': 0.1,
-            'max_depth': 6,
+            'max_depth': 10,
             'objective': 'binary:logistic',
             'eval_metric': 'logloss',
             'use_label_encoder': False,
@@ -42,7 +43,7 @@ if __name__ == "__main__":
     df['label'] = df['true_pos'].apply(lambda x: 1 if x >= 0 else 0)
 
     # Separate features and labels
-    X = df.drop(columns=['pid', 'track_id', 'true_pos', 'label'])
+    X = df.drop(columns=['track_id', 'true_pos', 'label'])
     y = df['label']
 
     # Step 3: Train-Test Split
@@ -69,3 +70,13 @@ if __name__ == "__main__":
 
     print("\nBottom-ranked tracks:")
     print(df_test_sorted.tail(10))  # Bottom-ranked tracks
+
+    # Group predictions and ground truth by 'pid'
+    preds = df_test.groupby('pid').apply(
+    lambda group: {'pid': group.name, 'scores': group['score'].tolist()}).tolist()
+
+    ground_truth = df_test.groupby('pid').apply(
+    lambda group: {'pid': group.name, 'labels': group['label'].tolist()}).tolist()
+
+    ndcg_score = NDCG(preds, ground_truth, k=10)  # Calculate NDCG@10
+    print(f"NDCG@10 Score: {ndcg_score:.4f}")
