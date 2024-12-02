@@ -69,8 +69,13 @@ class LatentFactors:
             # c/o gpt4 for this initial code
             item_factors = model.item_factors[track_ids]
             scores = item_factors @ model.item_factors.T
-            ranked_items = scores.mean(axis=0).argsort()[::-1]
-            recommendations = ranked_items[:self.num_candidates]
+            score_means = scores.mean(axis=0)
+            ranked_items = np.argpartition(score_means, -self.num_candidates)[-self.num_candidates:]
+            idxs = np.argsort(score_means[ranked_items])[::-1]
+            recommendations = ranked_items[idxs]
+            pred_scores[pid] = score_means[idxs]
+            #ranked_items = scores.mean(axis=0).argsort()[::-1]
+            #recommendations = ranked_items[:self.num_candidates]
             preds[pid] = [
                 utils.Track(
                     pid=pid,
@@ -81,9 +86,6 @@ class LatentFactors:
                 )
                 for i, x in enumerate(recommendations)
             ]
-            score_means = scores.mean(axis=0)
-            score_means.sort()
-            pred_scores[pid] = score_means[::-1][:self.num_candidates]
         return preds, pred_scores
 
     def predict(self, playlists):

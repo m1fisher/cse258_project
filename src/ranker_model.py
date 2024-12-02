@@ -68,8 +68,9 @@ def predict(playlists):
                 scores[i],
                 pid,
                 plist_vector,
-                nm=nm,
                 true_pos=-1,
+                nm=nm,
+                lf=lf,
             ) for i in range(len(candidates))
         ])
     X = pd.DataFrame(X_data)
@@ -123,7 +124,8 @@ if __name__ == "__main__":
 
     # Step 4: Train the Model
     recommender = SongRecommenderXGB()
-    recommender.train(X_train, y_train)
+    #recommender.train(X_train, y_train)
+    recommender.train(X, y)
     recommender.model.save_model("xgb_model")
 
     # Step 5: Evaluate the Model
