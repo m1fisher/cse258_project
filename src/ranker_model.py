@@ -103,12 +103,11 @@ def predict(playlists):
             ))
             pos_idx += 1
         final_preds[pred['pid']] = track_preds
-    import pdb; pdb.set_trace()
-
+    return final_preds
 
 if __name__ == "__main__":
     # Step 1: Load Data
-    data_path = "validation_data/xgboost.csv"
+    data_path = "train_data/xgboost_train.csv"
     df = pd.read_csv(data_path)
 
     # Step 2: Feature Engineering
@@ -119,36 +118,39 @@ if __name__ == "__main__":
     X = df.drop(columns=['true_pos', 'label'])
     y = df['label']
 
-    import pickle
-    preds = predict(recommender, X)
+    # Step 3: Train-Test Split
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
 
-#    # Step 5: Evaluate the Model
-#    y_pred = recommender.evaluate(X_test, y_test)
-#
-#    # Step 6: Compute Metrics
-#    evaluate_metrics(y_test, y_pred)
-#
-#    # Optional: Rank Tracks
-#    df_test = X_test.copy()
-#    df_test['score'] = y_pred
-#    df_test['label'] = y_test
-#    df_test_sorted = df_test.sort_values(by='score', ascending=False)
-#
-#    print("\nTop-ranked tracks:")
-#    print(df_test_sorted.head(10))  # Top-ranked tracks
-#
-#    print("\nBottom-ranked tracks:")
-#    print(df_test_sorted.tail(10))  # Bottom-ranked tracks
-#
-#    # Group predictions and ground truth by 'pid'
-#    preds = df_test.groupby('pid').apply(
-#    lambda group: {'pid': group.name, 'scores': group['score'].tolist()}).tolist()
-#
-#    ground_truth = df_test.groupby('pid').apply(
-#    lambda group: {'pid': group.name, 'labels': group['label'].tolist()}).tolist()
+    # Step 4: Train the Model
+    recommender = SongRecommenderXGB()
+    recommender.train(X_train, y_train)
+    recommender.model.save_model("xgb_model")
 
-    ndcg_score = NDCG(preds, ground_truth)  # Calculate NDCG@10
+    # Step 5: Evaluate the Model
+    y_pred = recommender.evaluate(X_test, y_test)
+
+    # Step 6: Compute Metrics
+    evaluate_metrics(y_test, y_pred)
+
+    # Optional: Rank Tracks
+    df_test = X_test.copy()
+    df_test['score'] = y_pred
+    df_test['label'] = y_test
+    df_test_sorted = df_test.sort_values(by='score', ascending=False)
+
+    print("\nTop-ranked tracks:")
+    print(df_test_sorted.head(10))  # Top-ranked tracks
+
+    print("\nBottom-ranked tracks:")
+    print(df_test_sorted.tail(10))  # Bottom-ranked tracks
+
+    # Group predictions and ground truth by 'pid'
+    preds = df_test.groupby('pid').apply(
+    lambda group: {'pid': group.name, 'scores': group['score'].tolist()}).tolist()
+
+    ground_truth = df_test.groupby('pid').apply(
+    lambda group: {'pid': group.name, 'labels': group['label'].tolist()}).tolist()
+
+    ndcg_score = NDCG(preds, ground_truth, k=10)  # Calculate NDCG@10
     print(f"NDCG@10 Score: {ndcg_score:.4f}")
-    import pdb; pdb.set_trace()
-
     print(precision_simple(preds, ground_truth))
