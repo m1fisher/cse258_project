@@ -105,7 +105,7 @@ def predict_with_seed_songs(playlists: dict[list]):
     for pid, seed_tracks in playlists.items():
         if len(seed_tracks) == 0:
             print(f'playlist {pid}: no seed tracks!')
-            preds[pid] = {}
+            preds[pid] = []
             continue
         
         embeddings = []
@@ -117,7 +117,7 @@ def predict_with_seed_songs(playlists: dict[list]):
         
         if len(embeddings) == 0:
             print(f'playlist {pid}: no embeddings found!')
-            preds[pid] = {}
+            preds[pid] = []
             continue
         
         avgEmbedding = np.mean(embeddings, axis=0).reshape(1, -1)
