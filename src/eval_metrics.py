@@ -1,4 +1,6 @@
 import numpy as np
+import statistics
+
 def R_precision(preds: list[dict], ground_truth: list[dict]):
     """
     Expected entry for preds or ground_truth:
@@ -11,6 +13,29 @@ def R_precision(preds: list[dict], ground_truth: list[dict]):
     S_a = set(x.artist_id for x in preds)
     numerator = len(S_t.intersection(G_t)) + 0.25 * len(S_a.intersection(G_a))
     return numerator / len(G_t)
+
+def precision_simple(preds, ground_truth):
+    """
+    simple precision function for xgboost model
+    # TODO: Fix this to include artist_id for correct Spotify R-precision
+    """
+    precision_scores = []
+    for pred, truth in zip(preds, ground_truth):
+        assert pred['pid'] == truth['pid'], "Playlist IDs must match between predictions and ground truth."
+        # Extract scores and labels
+        scores = pred['scores']
+        labels = truth['labels']
+        # Sort items by predicted scores in descending order
+        sorted_items = sorted(zip(scores, labels), key=lambda x: x[0], reverse=True)
+        sorted_labels = [item[1] for item in sorted_items]
+        if len(sorted_items) <= 1:
+            print("too short, skipping")
+            continue
+
+        num_correct = sum(sorted_labels[i] == 1 for i in range(len(sorted_items) // 2))
+        precision_scores.append(num_correct / (len(sorted_items) // 2))
+    return statistics.mean(precision_scores)
+
 
 def recall(preds: list[dict], ground_truth: list[dict]):
     print(len(preds))

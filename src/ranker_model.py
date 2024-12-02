@@ -2,7 +2,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from xgboost import XGBClassifier
 from sklearn.metrics import roc_auc_score
-from eval_metrics import NDCG
+from eval_metrics import NDCG, precision_simple
 
 class SongRecommenderXGB:
     def __init__(self, params=None):
@@ -35,7 +35,7 @@ def evaluate_metrics(y_test, y_pred):
 
 if __name__ == "__main__":
     # Step 1: Load Data
-    data_path = "xgboost_train.csv"
+    data_path = "train_data/xgboost_train.csv"
     df = pd.read_csv(data_path)
 
     # Step 2: Feature Engineering
@@ -80,3 +80,4 @@ if __name__ == "__main__":
 
     ndcg_score = NDCG(preds, ground_truth, k=10)  # Calculate NDCG@10
     print(f"NDCG@10 Score: {ndcg_score:.4f}")
+    print(precision_simple(preds, ground_truth))

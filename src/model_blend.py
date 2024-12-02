@@ -16,6 +16,7 @@ def get_feature_vec(candidate, score, pid, plist_vector, true_pos, nm):
         true_pos = -1
     return {
         "track_id": candidate.track_id,
+        "artist_id": candidate.artist_id,
         "latent_factor_score": score,
         "user_user_score": nm.user_to_user_score(plist_vector, candidate.track_id),
         "item_item_score": nm.item_to_item_score(plist_vector, candidate.track_id),
@@ -32,7 +33,7 @@ def create_xgboost_training_data():
     xgboost_train_data = []
     slice_num = 0
     playlist_num = 0
-    sampled_train_slices = random.sample(train_slices, 5)
+    sampled_train_slices = random.sample(train_slices, 5 * 10)
     for filename in sampled_train_slices:
         print(f"processing slice num {slice_num}")
         slice_num += 1
