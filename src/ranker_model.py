@@ -17,11 +17,11 @@ class SongRecommenderXGB:
             'random_state': 42
         }
         self.model = XGBClassifier(**self.params)
-    
+
     def train(self, X_train, y_train):
         """Train the model with the given training data."""
         self.model.fit(X_train, y_train)
-    
+
     def evaluate(self, X_test, y_test):
         """Evaluate the model and return predicted probabilities."""
         y_pred = self.model.predict_proba(X_test)[:, 1]  # Probabilities for positive class
@@ -43,7 +43,7 @@ if __name__ == "__main__":
     df['label'] = df['true_pos'].apply(lambda x: 1 if x >= 0 else 0)
 
     # Separate features and labels
-    X = df.drop(columns=['track_id', 'true_pos', 'label'])
+    X = df.drop(columns=['true_pos', 'label'])
     y = df['label']
 
     # Step 3: Train-Test Split
@@ -52,6 +52,7 @@ if __name__ == "__main__":
     # Step 4: Train the Model
     recommender = SongRecommenderXGB()
     recommender.train(X_train, y_train)
+    recommender.model.save_model("xgb_model")
 
     # Step 5: Evaluate the Model
     y_pred = recommender.evaluate(X_test, y_test)
@@ -64,7 +65,7 @@ if __name__ == "__main__":
     df_test['score'] = y_pred
     df_test['label'] = y_test
     df_test_sorted = df_test.sort_values(by='score', ascending=False)
-    
+
     print("\nTop-ranked tracks:")
     print(df_test_sorted.head(10))  # Top-ranked tracks
 
