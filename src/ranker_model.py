@@ -75,7 +75,10 @@ def predict(playlists):
     X = pd.DataFrame(X_data)
     X = X.drop(columns=["true_pos"])
     # TODO: formalize /move this into class
-    recommender = pickle.load(open("xgboost_model.pkl", "rb"))
+    #recommender = pickle.load(open("xgboost_model.pkl", "rb"))
+    recommender = SongRecommenderXGB()
+    recommender.model.load_model("xgb_model")
+
     # Predict given candidate track features
     preds = [p[1] for p in recommender.model.predict_proba(X)]
     X['score'] = preds
