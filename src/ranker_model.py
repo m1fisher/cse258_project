@@ -84,16 +84,17 @@ def predict(playlists):
             )
         X_data.extend(features)
     X = pd.DataFrame(X_data)
-    X = X.drop(columns=["true_pos"])
+    X["qid"] = X["pid"]
+    X = X.drop(columns=["true_pos", "pid"])
     # TODO: formalize /move this into class
     #recommender = pickle.load(open("xgboost_model.pkl", "rb"))
-    recommender = SongRecommenderXGB()
+    recommender = SongRecommenderXGBRanker()
     recommender.model.load_model("xgb_model")
 
     # Predict given candidate track features
-    preds = [p[1] for p in recommender.model.predict_proba(X)]
+    preds = recommender.model.predict(X)
     X['score'] = preds
-    X_pids = X.groupby('pid').apply(
+    X_pids = X.groupby('qid').apply(
         lambda group: {'pid': group.name,
                        'scores': group['score'].tolist(),
                        'track_id': group['track_id'].to_list(),
