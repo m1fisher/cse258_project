@@ -53,6 +53,9 @@ class LatentFactors:
         track_to_artist = utils.get_track_to_artist_map(
             "train_data/track_to_artist_ids.csv"
         )
+        track_to_album = utils.get_track_to_artist_map(
+            "train_data/track_to_album_ids.csv"
+        )
         model = self.model_playlist
         preds = {}
         pred_scores = {}
@@ -82,7 +85,7 @@ class LatentFactors:
                     pos=i,
                     track_id=int(x),
                     artist_id=track_to_artist[int(x)],
-                    album_id=None,
+                    album_id=track_to_album[int(x)],
                 )
                 for i, x in enumerate(recommendations)
             ]

@@ -142,9 +142,4 @@ def inner_product_predict(playlists):
 
 if __name__ == "__main__":
     data_dir = sys.argv[1]
-    #create_sparse_mat(data_dir)
-    nm = NeighborModels()
-    test_plist = nm.ns_mat_csr[0].tocoo()
-    for j in range(10000):
-        nm.item_to_item_score(test_plist, j)
-        nm.user_to_user_score(test_plist, j)
+    create_sparse_mat(data_dir)

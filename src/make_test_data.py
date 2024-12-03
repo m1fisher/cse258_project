@@ -7,65 +7,13 @@ import sys
 # Set seed for reproducibility
 random.seed(414)
 
-VALIDATION_FILES = [
-    "mpd.slice.954000-954999.csv",
-    "mpd.slice.955000-955999.csv",
-    "mpd.slice.956000-956999.csv",
-    "mpd.slice.957000-957999.csv",
-    "mpd.slice.958000-958999.csv",
-    "mpd.slice.959000-959999.csv",
-    "mpd.slice.96000-96999.csv",
-    "mpd.slice.960000-960999.csv",
-    "mpd.slice.961000-961999.csv",
-    "mpd.slice.962000-962999.csv",
-    "mpd.slice.963000-963999.csv",
-    "mpd.slice.964000-964999.csv",
-    "mpd.slice.965000-965999.csv",
-    "mpd.slice.966000-966999.csv",
-    "mpd.slice.967000-967999.csv",
-    "mpd.slice.968000-968999.csv",
-    "mpd.slice.969000-969999.csv",
-    "mpd.slice.97000-97999.csv",
-    "mpd.slice.970000-970999.csv",
-    "mpd.slice.971000-971999.csv",
-    "mpd.slice.972000-972999.csv",
-    "mpd.slice.973000-973999.csv",
-    "mpd.slice.974000-974999.csv",
-    "mpd.slice.975000-975999.csv",
-    "mpd.slice.976000-976999.csv",
-    "mpd.slice.977000-977999.csv",
-    "mpd.slice.978000-978999.csv",
-    "mpd.slice.979000-979999.csv",
-    "mpd.slice.98000-98999.csv",
-    "mpd.slice.980000-980999.csv",
-    "mpd.slice.981000-981999.csv",
-    "mpd.slice.982000-982999.csv",
-    "mpd.slice.983000-983999.csv",
-    "mpd.slice.984000-984999.csv",
-    "mpd.slice.985000-985999.csv",
-    "mpd.slice.986000-986999.csv",
-    "mpd.slice.987000-987999.csv",
-    "mpd.slice.988000-988999.csv",
-    "mpd.slice.989000-989999.csv",
-    "mpd.slice.99000-99999.csv",
-    "mpd.slice.990000-990999.csv",
-    "mpd.slice.991000-991999.csv",
-    "mpd.slice.992000-992999.csv",
-    "mpd.slice.993000-993999.csv",
-    "mpd.slice.994000-994999.csv",
-    "mpd.slice.995000-995999.csv",
-    "mpd.slice.996000-996999.csv",
-    "mpd.slice.997000-997999.csv",
-    "mpd.slice.998000-998999.csv",
-    "mpd.slice.999000-999999.csv",
-]
-
+# Randomly chosen slices
+VALIDATION_FILES = ['mpd.slice.829000-829999.csv', 'mpd.slice.415000-415999.csv', 'mpd.slice.502000-502999.csv', 'mpd.slice.742000-742999.csv', 'mpd.slice.56000-56999.csv', 'mpd.slice.959000-959999.csv', 'mpd.slice.826000-826999.csv', 'mpd.slice.389000-389999.csv', 'mpd.slice.295000-295999.csv', 'mpd.slice.393000-393999.csv', 'mpd.slice.125000-125999.csv', 'mpd.slice.19000-19999.csv', 'mpd.slice.997000-997999.csv', 'mpd.slice.437000-437999.csv', 'mpd.slice.336000-336999.csv', 'mpd.slice.345000-345999.csv', 'mpd.slice.515000-515999.csv', 'mpd.slice.101000-101999.csv', 'mpd.slice.260000-260999.csv', 'mpd.slice.988000-988999.csv', 'mpd.slice.441000-441999.csv', 'mpd.slice.558000-558999.csv', 'mpd.slice.766000-766999.csv', 'mpd.slice.818000-818999.csv', 'mpd.slice.279000-279999.csv', 'mpd.slice.700000-700999.csv', 'mpd.slice.506000-506999.csv', 'mpd.slice.25000-25999.csv', 'mpd.slice.806000-806999.csv', 'mpd.slice.357000-357999.csv']
+TEST_FILES = ['mpd.slice.723000-723999.csv', 'mpd.slice.337000-337999.csv', 'mpd.slice.749000-749999.csv', 'mpd.slice.844000-844999.csv', 'mpd.slice.418000-418999.csv', 'mpd.slice.434000-434999.csv', 'mpd.slice.762000-762999.csv', 'mpd.slice.763000-763999.csv', 'mpd.slice.605000-605999.csv', 'mpd.slice.222000-222999.csv']
 
 def make_test_data(data_dir, mv):
     all_files = os.listdir(data_dir)
-    test_data_name = "mpd.slice.{x}00000-{x}00999.csv"
-    test_files = [test_data_name.format(x=i) for i in range(1, 10)]
-    test_files.append("mpd.slice.0-999.csv")
+    test_files = TEST_FILES
     assert set(test_files).issubset(all_files)
     test_csv = []
     for f in test_files:

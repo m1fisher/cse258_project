@@ -26,7 +26,6 @@ def get_feature_vec(candidate, score, pid, plist_vector, true_pos, nm, lf):
     plist_compat_score_mean = PLIST_COMPAT_SCORE_MEANS.get(pid)
     plist_compat_score_sd = PLIST_COMPAT_SCORE_SDS.get(pid)
     if plist_compat_score_mean is None:
-        print(pid)
         plist_factor_vector = lf.model_playlist.item_factors[plist_vector.col].mean(axis=0)
         plist_dot_products = (plist_factor_vector
                               @ lf.model_playlist.item_factors[plist_vector.col].T)
@@ -37,6 +36,7 @@ def get_feature_vec(candidate, score, pid, plist_vector, true_pos, nm, lf):
     return {
         "track_id": candidate.track_id,
         "artist_id": candidate.artist_id,
+        "album_id": candidate.album_id,
         "latent_factor_score": score,
         "song_compat_score_mean": song_compat_score_mean,
         "plist_compat_score_mean": plist_compat_score_mean,
@@ -54,11 +54,11 @@ def create_xgboost_training_data(data_dir):
     train_slices = [x for x in os.listdir(data_dir) if x.startswith("mpd.slice")]
     slice_num = 0
     playlist_num = 0
-    sampled_train_slices = random.sample(train_slices, 200)
+    sampled_train_slices = sorted(train_slices)
     total_rows = 0
     for filename in sampled_train_slices:
         xgboost_train_data = []
-        print(f"processing slice num {slice_num}")
+        print(f"processing slice {filename}")
         slice_num += 1
         curr_slice = utils.read_track_csv(os.path.join(data_dir, filename))
         pid_set = set(t.pid for t in curr_slice)
@@ -119,7 +119,7 @@ def create_xgboost_training_data(data_dir):
 
 
 def write_xgboost_csv(data, data_dir, mode="a"):
-    fname = "test_xgboost_train.csv"
+    fname = "xgboost_train_data.csv"
     is_new = (not os.path.exists(os.path.join(data_dir, fname)))
     with open(os.path.join(data_dir, fname), mode=mode, newline="") as file:
         writer = csv.DictWriter(file, fieldnames=data[0].keys())
