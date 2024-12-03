@@ -110,8 +110,6 @@ def NDCG_xgboost(preds, ground_truth, k=None):
         k (int): The rank position up to which to calculate NDCG. Defaults to full list.
     Returns:
         float: The average NDCG score across all playlists.
-    # TODO: update implementation to match new input
-
     """
     ndcg_scores = []
     for pred, truth in zip(preds, ground_truth):
@@ -122,8 +120,8 @@ def NDCG_xgboost(preds, ground_truth, k=None):
         labels = truth['labels']
 
         # Compute DCG and ideal DCG (IDCG)
-        dcg = DCG(scores, labels, k)
-        idcg = DCG(labels, labels, k)  # Sort by actual labels for ideal ranking
+        dcg = DCG_xgboost(scores, labels, k)
+        idcg = DCG_xgboost(labels, labels, k)  # Sort by actual labels for ideal ranking
 
         # Avoid division by zero if IDCG is 0
         ndcg = dcg / idcg if idcg > 0 else 0

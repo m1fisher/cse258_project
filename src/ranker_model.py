@@ -3,7 +3,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from xgboost import XGBRanker
-from eval_metrics import NDCG, precision_simple
+from eval_metrics import NDCG_xgboost, precision_simple
 
 import utils
 
@@ -183,7 +183,7 @@ if __name__ == "__main__":
         lambda group: {'pid': group.name, 'labels': group['label'].tolist()}
     ).tolist()
 
-    ndcg_score = NDCG(preds, ground_truth, k=10)  # Calculate NDCG@10
+    ndcg_score = NDCG_xgboost(preds, ground_truth, k=10)  # Calculate NDCG@10
     print(f"NDCG@10 Score: {ndcg_score:.4f}")
 
     precision_score = precision_simple(preds, ground_truth)
