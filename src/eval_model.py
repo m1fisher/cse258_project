@@ -31,7 +31,7 @@ def evaluate(predict_func, quick_mode=False):
     for track in ground_truth:
         ground_truth_per_playlist[track.pid].append(track)
     if quick_mode == True:
-        n = 5
+        n = 50
         rand_idxs = set(random.sample(range(len(eval_per_playlist)), n))
         print(rand_idxs)
         eval_per_playlist = {k: v for i, (k,v) in enumerate(list(eval_per_playlist.items())) if i in rand_idxs}
@@ -50,7 +50,7 @@ def evaluate(predict_func, quick_mode=False):
     print(f"Average recall: {statistics.mean(recalls)}")
     print(f"Average R-precision: {statistics.mean(r_precisions)}")
     print(f"Average num clicks: {statistics.mean(clicks)}")
-    print(f"Average NDCG: {statistics.mean(ndcg))}")
+    print(f"Average NDCG: {statistics.mean(ndcg)}")
 
 
 

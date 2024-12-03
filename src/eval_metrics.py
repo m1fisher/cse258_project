@@ -43,7 +43,7 @@ def recall(preds: list[dict], ground_truth: list[dict]):
     S_t = set(x.track_id for x in preds)
     return len(S_t.intersection(G_t)) / len(G_t)
 
-def DCG(scores, labels, k=None):
+def DCG_xgboost(scores, labels, k=None):
     """
     Compute Discounted Cumulative Gain (DCG) for a list of scores and labels.
     Args:
@@ -66,7 +66,40 @@ def DCG(scores, labels, k=None):
     )
     return dcg
 
-def NDCG(preds, ground_truth, k=None):
+def DCG(preds, ground_truth):
+    """
+    Compute Discounted Cumulative Gain (DCG) for a list of scores and labels.
+    Returns:
+        float: The DCG score.
+    """
+    #sorted_items = sorted(zip(scores, labels), key=lambda x: x[0], reverse=True)
+    #sorted_labels = [item[1] for item in sorted_items]
+    true_idx = {t.track_id: i for i, t in enumerate(ground_truth)}
+
+    # Compute DCG
+    dcg = sum(
+        true_idx.get(track.track_id, 0) / np.log2(idx + 2)  # log2(idx+2) because idx is 0-based
+        for idx, track in enumerate(preds)
+    )
+    return dcg
+
+
+def NDCG(preds, ground_truth):
+    """
+    Compute Normalized Discounted Cumulative Gain (NDCG).
+    Args:
+    Returns:
+        float: The average NDCG score across all playlists.
+    """
+    dcg = DCG(preds, ground_truth)
+    idcg = DCG(ground_truth, ground_truth)
+
+    # Avoid division by zero if IDCG is 0
+    ndcg = dcg / idcg if idcg > 0 else 0
+    return ndcg
+
+
+def NDCG_xgboost(preds, ground_truth, k=None):
     """
     Compute Normalized Discounted Cumulative Gain (NDCG).
     Args:
