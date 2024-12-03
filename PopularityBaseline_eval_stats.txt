@@ -1,0 +1,45 @@
+title_and_first_1_tracks.csv
+Average recall: 0.15524104317165463
+Average R-precision: 0.018571943173355712
+Average num clicks: 22.966
+Average NDCG: 0.08568432172902683
+title_and_first_5_tracks.csv
+Average recall: 0.14684628220743767
+Average R-precision: 0.025050926293931245
+Average num clicks: 17.151
+Average NDCG: 0.09421202929327074
+first_5_tracks.csv
+Average recall: 0.1532475321548077
+Average R-precision: 0.02071662248312403
+Average num clicks: 20.031
+Average NDCG: 0.08962278836374314
+first_10_tracks.csv
+Average recall: 0.15473828588185665
+Average R-precision: 0.03234350199436054
+Average num clicks: 14.79
+Average NDCG: 0.10458193489543895
+title_and_first_10_tracks.csv
+Average recall: 0.1471992949638796
+Average R-precision: 0.033827004243085844
+Average num clicks: 13.058
+Average NDCG: 0.10586258607721508
+title_and_first_25_tracks.csv
+Average recall: 0.14471453151391955
+Average R-precision: 0.04571332892540308
+Average num clicks: 8.83
+Average NDCG: 0.11664925238243339
+title_and_random_25_tracks.csv
+Average recall: 0.16336449897696068
+Average R-precision: 0.041606011265287124
+Average num clicks: 11.208
+Average NDCG: 0.12240383128466714
+title_and_first_100_tracks.csv
+Average recall: 0.12678473422933773
+Average R-precision: 0.05008370750624673
+Average num clicks: 9.047
+Average NDCG: 0.11057862137408446
+title_and_random_100_tracks.csv
+Average recall: 0.14364906207322725
+Average R-precision: 0.022341309947630193
+Average num clicks: 19.452
+Average NDCG: 0.08702992586254636
