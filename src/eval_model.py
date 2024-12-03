@@ -41,13 +41,16 @@ def evaluate(predict_func, quick_mode=False):
     recalls = []
     r_precisions = []
     clicks = []
+    ndcg = []
     for pid in ground_truth_per_playlist:
         recalls.append(eval_metrics.recall(predictions[pid], ground_truth_per_playlist[pid]))
         r_precisions.append(eval_metrics.R_precision(predictions[pid], ground_truth_per_playlist[pid]))
         clicks.append(eval_metrics.clicks(predictions[pid], ground_truth_per_playlist[pid]))
+        ndcg.append(eval_metrics.NDCG(predictions[pid], ground_truth_per_playlist[pid]))
     print(f"Average recall: {statistics.mean(recalls)}")
     print(f"Average R-precision: {statistics.mean(r_precisions)}")
     print(f"Average num clicks: {statistics.mean(clicks)}")
+    print(f"Average NDCG: {statistics.mean(ndcg))}")
 
 
 

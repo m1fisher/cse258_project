@@ -56,7 +56,7 @@ def DCG(scores, labels, k=None):
     # Sort items by predicted scores in descending order
     sorted_items = sorted(zip(scores, labels), key=lambda x: x[0], reverse=True)
     sorted_labels = [item[1] for item in sorted_items]
-    
+
     # Compute DCG
     if k is None:
         k = len(sorted_labels)
@@ -77,23 +77,25 @@ def NDCG(preds, ground_truth, k=None):
         k (int): The rank position up to which to calculate NDCG. Defaults to full list.
     Returns:
         float: The average NDCG score across all playlists.
+    # TODO: update implementation to match new input
+
     """
     ndcg_scores = []
     for pred, truth in zip(preds, ground_truth):
         assert pred['pid'] == truth['pid'], "Playlist IDs must match between predictions and ground truth."
-        
+
         # Extract scores and labels
         scores = pred['scores']
         labels = truth['labels']
-        
+
         # Compute DCG and ideal DCG (IDCG)
         dcg = DCG(scores, labels, k)
         idcg = DCG(labels, labels, k)  # Sort by actual labels for ideal ranking
-        
+
         # Avoid division by zero if IDCG is 0
         ndcg = dcg / idcg if idcg > 0 else 0
         ndcg_scores.append(ndcg)
-    
+
     # Return the mean NDCG across all playlists
     return np.mean(ndcg_scores)
 
