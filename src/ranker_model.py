@@ -1,3 +1,4 @@
+from concurrent.futures import ThreadPoolExecutor
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from xgboost import XGBClassifier
@@ -62,17 +63,24 @@ def predict(playlists):
             ),
             shape=(1, nm.ns_mat.shape[1])
         )
-        X_data.extend([
-            get_feature_vec(
-                candidates[i],
-                scores[i],
-                pid,
-                plist_vector,
-                true_pos=-1,
-                nm=nm,
-                lf=lf,
-            ) for i in range(len(candidates))
-        ])
+        #with ThreadPoolExecutor(max_workers=8) as executor:
+        features = list(
+                map(
+                    lambda x: get_feature_vec(*x), [
+                        (
+                            candidates[i],
+                            scores[i],
+                            pid,
+                            plist_vector,
+                            -1,  # fake true_pos
+                            nm,
+                            lf,
+                        )
+                        for i in range(len(candidates))
+                    ],
+                )
+            )
+        X_data.extend(features)
     X = pd.DataFrame(X_data)
     X = X.drop(columns=["true_pos"])
     # TODO: formalize /move this into class
@@ -114,6 +122,9 @@ if __name__ == "__main__":
     # Step 2: Feature Engineering
     # Create binary label: 1 if true_pos >= 0, else 0
     df['label'] = df['true_pos'].apply(lambda x: 1 if x >= 0 else 0)
+
+    # trying this
+    #df = df.drop(columns=['user_user_score', 'item_item_score'])
 
     # Separate features and labels
     X = df.drop(columns=['true_pos', 'label'])
