@@ -77,8 +77,6 @@ class LatentFactors:
             idxs = np.argsort(score_means[ranked_items])[::-1]
             recommendations = ranked_items[idxs]
             pred_scores[pid] = score_means[idxs]
-            #ranked_items = scores.mean(axis=0).argsort()[::-1]
-            #recommendations = ranked_items[:self.num_candidates]
             preds[pid] = [
                 utils.Track(
                     pid=pid,

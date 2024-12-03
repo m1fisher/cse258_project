@@ -119,7 +119,7 @@ def predict(playlists):
 
 if __name__ == "__main__":
     # Step 1: Load Data
-    data_path = "train_data/xgboost_train.csv"
+    data_path = "train_data/xgboost_train_data.csv"
     df = pd.read_csv(data_path)
 
     # Step 2: Feature Engineering
