@@ -46,7 +46,7 @@ def _load_model(playlist_rows=True):
 class LatentFactors:
     def __init__(self):
         self.model_playlist = _load_model()
-        self.num_candidates = 1000
+        self.num_candidates = 1100
 
     def get_playlist_similarity_candidates(self, playlists):
         """ """
@@ -77,6 +77,7 @@ class LatentFactors:
             idxs = np.argsort(score_means[ranked_items])[::-1]
             recommendations = ranked_items[idxs]
             pred_scores[pid] = score_means[idxs]
+            seed_track_ids = set(track_ids)
             preds[pid] = [
                 utils.Track(
                     pid=pid,
@@ -85,8 +86,8 @@ class LatentFactors:
                     artist_id=track_to_artist[int(x)],
                     album_id=track_to_album[int(x)],
                 )
-                for i, x in enumerate(recommendations)
-            ]
+                for i, x in enumerate(recommendations) if int(x) not in seed_track_ids
+            ][:1000]
         return preds, pred_scores
 
     def predict(self, playlists):
