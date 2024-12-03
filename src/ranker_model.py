@@ -1,8 +1,11 @@
+from concurrent.futures import ThreadPoolExecutor
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from xgboost import XGBRanker
 from eval_metrics import NDCG, precision_simple
+
+import utils
 
 
 class SongRecommenderXGBRanker:
@@ -34,6 +37,85 @@ def assign_qid(df, qid_column):
     label_encoder = LabelEncoder()
     return label_encoder.fit_transform(df[qid_column])
 
+
+from scipy.sparse import coo_matrix
+import latent_factor_model
+import sparse_repr
+from model_blend import get_feature_vec
+
+import pickle
+# will move into class
+lf = latent_factor_model.LatentFactors()
+nm = sparse_repr.NeighborModels()
+
+def predict(playlists):
+    # Create X dataframe from playlists
+    X_data = []
+    playlist_num = 0
+    for pid, seed_tracks in playlists.items():
+        print(f"{playlist_num=}")
+        playlist_num += 1
+        candidates, scores = lf.predict_with_scores({pid: seed_tracks})
+        candidates = candidates[pid]
+        scores = scores[pid]
+        plist_vector = coo_matrix(
+            (
+                [1] * len(seed_tracks),
+                ([0] * len(seed_tracks), [x.track_id for x in seed_tracks]),
+            ),
+            shape=(1, nm.ns_mat.shape[1])
+        )
+        #with ThreadPoolExecutor(max_workers=8) as executor:
+        features = list(
+                map(
+                    lambda x: get_feature_vec(*x), [
+                        (
+                            candidates[i],
+                            scores[i],
+                            pid,
+                            plist_vector,
+                            -1,  # fake true_pos
+                            nm,
+                            lf,
+                        )
+                        for i in range(len(candidates))
+                    ],
+                )
+            )
+        X_data.extend(features)
+    X = pd.DataFrame(X_data)
+    X["qid"] = X["pid"]
+    X = X.drop(columns=["true_pos", "pid"])
+    # TODO: formalize /move this into class
+    #recommender = pickle.load(open("xgboost_model.pkl", "rb"))
+    recommender = SongRecommenderXGBRanker()
+    recommender.model.load_model("xgb_model")
+
+    # Predict given candidate track features
+    preds = recommender.model.predict(X)
+    X['score'] = preds
+    X_pids = X.groupby('qid').apply(
+        lambda group: {'pid': group.name,
+                       'scores': group['score'].tolist(),
+                       'track_id': group['track_id'].to_list(),
+                       'artist_id': group['artist_id'].to_list()}).tolist()
+    final_preds = {}
+    for pred in X_pids:
+        score_idxs = [(score, i) for i, score in enumerate(pred['scores'])]
+        score_idxs.sort(reverse=True)
+        track_preds = []
+        pos_idx = 0
+        for score, i in score_idxs:
+            track_preds.append(utils.Track(
+                pid=pred['pid'],
+                pos=pos_idx,
+                track_id=pred['track_id'][i],
+                artist_id=pred['artist_id'][i],
+                album_id=None
+            ))
+            pos_idx += 1
+        final_preds[pred['pid']] = track_preds
+    return final_preds
 
 if __name__ == "__main__":
     # Step 1: Load Data
@@ -72,6 +154,7 @@ if __name__ == "__main__":
     # Step 5: Train the Model
     recommender = SongRecommenderXGBRanker()
     recommender.train(X_train_sorted, y_train_sorted, group_train)
+    recommender.model.save_model("xgb_model")
 
     # Step 6: Evaluate the Model
     y_pred = recommender.evaluate(X_test)

@@ -1,8 +1,12 @@
+from concurrent.futures import ThreadPoolExecutor
+
 from collections import defaultdict
 import csv
 import random
 import os
+import sys
 
+import numpy as np
 from scipy.sparse import coo_matrix
 
 import latent_factor_model
@@ -11,33 +15,52 @@ import utils
 
 random.seed(414)
 
-def get_feature_vec(candidate, score, pid, plist_vector, true_pos, nm):
+# TODO: cache this in a less hacky way
+PLIST_COMPAT_SCORE_MEANS = {}
+PLIST_COMPAT_SCORE_SDS = {}
+def get_feature_vec(candidate, score, pid, plist_vector, true_pos, nm, lf):
     if true_pos is None:
         true_pos = -1
+    song_compat_score_mean = (lf.model_playlist.item_factors[candidate.track_id]
+                              @ lf.model_playlist.item_factors[plist_vector.col].T).mean(axis=0)
+    plist_compat_score_mean = PLIST_COMPAT_SCORE_MEANS.get(pid)
+    plist_compat_score_sd = PLIST_COMPAT_SCORE_SDS.get(pid)
+    if plist_compat_score_mean is None:
+        print(pid)
+        plist_factor_vector = lf.model_playlist.item_factors[plist_vector.col].mean(axis=0)
+        plist_dot_products = (plist_factor_vector
+                              @ lf.model_playlist.item_factors[plist_vector.col].T)
+        plist_compat_score_mean = plist_dot_products.mean(axis=0)
+        plist_compat_score_sd = np.std(plist_dot_products)
+        PLIST_COMPAT_SCORE_MEANS[pid] = plist_compat_score_mean
+        PLIST_COMPAT_SCORE_SDS[pid] = plist_compat_score_sd
     return {
         "track_id": candidate.track_id,
         "artist_id": candidate.artist_id,
         "latent_factor_score": score,
-        "user_user_score": nm.user_to_user_score(plist_vector, candidate.track_id),
-        "item_item_score": nm.item_to_item_score(plist_vector, candidate.track_id),
+        "song_compat_score_mean": song_compat_score_mean,
+        "plist_compat_score_mean": plist_compat_score_mean,
+        "plist_compat_score_sd": plist_compat_score_sd,
         "pid": candidate.pid,
         "predicted_pos": candidate.pos,
         "true_pos": true_pos,
     }
 
 
-def create_xgboost_training_data():
+
+def create_xgboost_training_data(data_dir):
     lf = latent_factor_model.LatentFactors()
     nm = sparse_repr.NeighborModels()
-    train_slices = [x for x in os.listdir("train_data") if x.startswith("mpd.slice")]
-    xgboost_train_data = []
+    train_slices = [x for x in os.listdir(data_dir) if x.startswith("mpd.slice")]
     slice_num = 0
     playlist_num = 0
-    sampled_train_slices = random.sample(train_slices, 5 * 10)
+    sampled_train_slices = random.sample(train_slices, 200)
+    total_rows = 0
     for filename in sampled_train_slices:
+        xgboost_train_data = []
         print(f"processing slice num {slice_num}")
         slice_num += 1
-        curr_slice = utils.read_track_csv(os.path.join("train_data", filename))
+        curr_slice = utils.read_track_csv(os.path.join(data_dir, filename))
         pid_set = set(t.pid for t in curr_slice)
         sampled_pids = random.sample(list(pid_set), len(pid_set) // 10)
         pid_to_tracks = defaultdict(list)
@@ -61,37 +84,51 @@ def create_xgboost_training_data():
             ]
             # sample size 20 in http://www.cs.utoronto.ca/~mvolkovs/recsys2018_challenge.pdf
             sampled_correct = random.sample(correct_idxs, min(20, len(correct_idxs)))
-            sampled_incorrect = random.sample(incorrect_idxs, min(20, len(incorrect_idxs)))
-            # NOTE (mfisher): this construction seems inefficient
+            sampled_incorrect = random.sample(
+                incorrect_idxs, min(20, len(incorrect_idxs))
+            )
             plist_vector = coo_matrix(
                 (
                     [1] * len(true_tracks),
                     ([0] * len(true_tracks), [x.track_id for x in true_tracks]),
                 ),
-                shape=(1, nm.ns_mat.shape[1])
+                shape=(1, nm.ns_mat.shape[1]),
             )
-            full_sample = [
-                    get_feature_vec(
-                        candidates[i],
-                        scores[i],
-                        pid,
-                        plist_vector,
-                        true_pos=true_track_pos.get(candidates[i].track_id),
-                        nm=nm,
+            with ThreadPoolExecutor() as executor:
+                full_sample = list(
+                    executor.map(
+                        lambda x: get_feature_vec(*x),
+                        [
+                            (
+                                candidates[i],
+                                scores[i],
+                                pid,
+                                plist_vector,
+                                true_track_pos.get(candidates[i].track_id),
+                                nm,
+                                lf,
+                            )
+                            for i in sampled_correct + sampled_incorrect
+                        ],
                     )
-                    for i in sampled_correct + sampled_incorrect
-            ]
+                )
             xgboost_train_data.extend(full_sample)
-    print(len(xgboost_train_data))
-    write_xgboost_csv(xgboost_train_data)
+        total_rows += len(xgboost_train_data)
+        print(f"processed {total_rows} rows")
+        write_xgboost_csv(xgboost_train_data, data_dir)
 
-def write_xgboost_csv(data):
-    with open("train_data/xgboost_train.csv", mode='w+', newline='') as file:
+
+def write_xgboost_csv(data, data_dir, mode="a"):
+    fname = "test_xgboost_train.csv"
+    is_new = (not os.path.exists(os.path.join(data_dir, fname)))
+    with open(os.path.join(data_dir, fname), mode=mode, newline="") as file:
         writer = csv.DictWriter(file, fieldnames=data[0].keys())
-        writer.writeheader()
+        if is_new:
+            writer.writeheader()
         writer.writerows(data)
 
 
-
 if __name__ == "__main__":
-    create_xgboost_training_data()
+    data_dir = sys.argv[1]
+    create_xgboost_training_data(data_dir)
+    # create_xgboost_validation_data(data_dir)

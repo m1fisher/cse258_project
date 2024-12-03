@@ -14,8 +14,9 @@ from popularity_baseline import predict
 #from sparse_repr import inner_product_predict as predict
 #from voyager_model import predict as model
 from latent_factor_model import LatentFactors
+from ranker_model import predict
 
-random.seed(414)
+random.seed(4141414)
 
 # TODO (mfisher): Generalize this eval pipeline across validation files
 def evaluate(predict_func, quick_mode=False):
@@ -30,7 +31,7 @@ def evaluate(predict_func, quick_mode=False):
     for track in ground_truth:
         ground_truth_per_playlist[track.pid].append(track)
     if quick_mode == True:
-        n = 50
+        n = 5
         rand_idxs = set(random.sample(range(len(eval_per_playlist)), n))
         print(rand_idxs)
         eval_per_playlist = {k: v for i, (k,v) in enumerate(list(eval_per_playlist.items())) if i in rand_idxs}
@@ -57,4 +58,4 @@ if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "--quick":
         quick_mode = True
     evaluate(predict, quick_mode)
-    #evaluate(LatentFactors().predict, quick_mode)
+    evaluate(LatentFactors().predict, quick_mode)
