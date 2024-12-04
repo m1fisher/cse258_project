@@ -46,7 +46,7 @@ def _load_model(playlist_rows=True):
 class LatentFactors:
     def __init__(self):
         self.model_playlist = _load_model()
-        self.num_candidates = 1100
+        self.num_candidates = 1000
 
     def get_playlist_similarity_candidates(self, playlists):
         """ """
@@ -86,8 +86,8 @@ class LatentFactors:
                     artist_id=track_to_artist[int(x)],
                     album_id=track_to_album[int(x)],
                 )
-                for i, x in enumerate(recommendations) if int(x) not in seed_track_ids
-            ][:1000]
+                for i, x in enumerate(recommendations)
+            ]
         return preds, pred_scores
 
     def predict(self, playlists):

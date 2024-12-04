@@ -11,7 +11,7 @@ import eval_metrics
 from utils import read_track_csv
 
 ### Import your model here as model ###
-from popularity_baseline import predict
+#from popularity_baseline import predict
 #from sparse_repr import inner_product_predict as predict
 #from voyager_model import predict as model
 from latent_factor_model import LatentFactors
@@ -47,7 +47,7 @@ def evaluate(predict_func, data_dir, filename, model_name, quick_mode=False):
     for track in ground_truth:
         ground_truth_per_playlist[track.pid].append(track)
     if quick_mode == True:
-        n = 5
+        n = 100
         rand_idxs = set(random.sample(range(len(eval_per_playlist)), n))
         print(rand_idxs)
         eval_per_playlist = {k: v for i, (k,v) in enumerate(list(eval_per_playlist.items())) if i in rand_idxs}
@@ -78,9 +78,8 @@ def evaluate(predict_func, data_dir, filename, model_name, quick_mode=False):
 
 if __name__ == "__main__":
     data_dir = sys.argv[1]
-    model_name = "LatentFactors"
+    model_name = "OldTwoStage"
     quick_mode = False
     if len(sys.argv) > 2 and sys.argv[2] == "--quick":
         quick_mode = True
-    evaluate_all(LatentFactors().predict, data_dir, model_name, quick_mode)
-    #evaluate(LatentFactors().predict, quick_mode)
+    evaluate_all(predict, data_dir, model_name, quick_mode)
