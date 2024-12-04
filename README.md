@@ -33,5 +33,11 @@ python3 src/make_test_data.py processed_data validation --mv
 python3 src/split_test_data.py validation_data/mpd.validation.csv
 # What remains in the `processed_data/` subdir may now be used as training data
 mv processed_data/ train_data/
+# Create the sparse matrix representation
+python3 src/sparse_repr.py train_data
+# Run latent factor SVD matrix factorization
+python3 src/latent_factor_model.py
+# Run the model blend to create ranker training
+python3 src/model_blend.py train_data
 ```
 
